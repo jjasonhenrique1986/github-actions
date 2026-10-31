@@ -51,6 +51,18 @@ aws iam put-role-policy \
 O `sub` da trust policy é `repo:meu-usuario/meu-repo:pull_request`, ou seja, só
 workflows disparados por pull requests desse repositório assumem a role.
 
+> **Confira o formato do `sub` no seu repositório.** Se o repositório usa o
+> *subject imutável*, o `sub` inclui os IDs numéricos do dono e do repositório,
+> como `repo:meu-usuario@123456/meu-repo@7891011:pull_request`, e a trust
+> policy acima recusa o token (`Not authorized to perform
+> sts:AssumeRoleWithWebIdentity`). Para ver o prefixo que o GitHub usa:
+>
+> ```bash
+> gh api repos/meu-usuario/meu-repo/actions/oidc/customization/sub --jq .sub_claim_prefix
+> ```
+>
+> Na trust policy, use esse prefixo seguido de `:pull_request`.
+
 ### 3. Secret e variáveis do repositório
 
 Em **Settings → Secrets and variables → Actions**:
