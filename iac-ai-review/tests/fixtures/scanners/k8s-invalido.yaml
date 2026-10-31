@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invalido
+spec:
+  replicas: "dois"
+  selector:
+    matchLabels:
+      app: invalido
+  template:
+    metadata:
+      labels:
+        app: invalido
+    spec:
+      containers:
+        - name: app
+          image: nginx:1.27
+          portas:
+            - containerPort: 80

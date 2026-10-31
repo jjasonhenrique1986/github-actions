@@ -20,8 +20,14 @@ inputs:
     description: Ref base do diff. Vazio usa origin/<branch base do PR>.
     required: false
     default: ""
+  scanners:
+    description: >-
+      Scanners que rodam antes do modelo, separados por vírgula. Aceitos: checkov, trivy, kube-linter,
+      kubeconform.
+    required: false
+    default: checkov,trivy,kube-linter,kubeconform
   checkov:
-    description: Roda o checkov e envia o resultado ao modelo (true ou false).
+    description: Obsoleto (use scanners). false tira o checkov da lista.
     required: false
     default: "true"
   checkov-version:
@@ -62,6 +68,31 @@ runs:
         fi
         echo "base=$base" >> "$GITHUB_OUTPUT"
 
+    - name: Escolher os scanners
+      id: scanners
+      shell: bash
+      env:
+        SCANNERS: ${{ inputs.scanners }}
+        CHECKOV: ${{ inputs.checkov }}
+      run: |
+        chosen=" "
+        IFS=',' read -ra items <<< "$SCANNERS"
+        for raw in "${items[@]}"; do
+          name="$(echo "$raw" | xargs)"
+          [ -z "$name" ] && continue
+          case "$name" in
+            checkov|trivy|kube-linter|kubeconform) ;;
+            *) echo "::error::Scanner desconhecido: '$name'. Use: checkov, trivy, kube-linter, kubeconform."; exit 1 ;;
+          esac
+          if [ "$name" = checkov ] && [ "$CHECKOV" != "true" ]; then continue; fi
+          chosen="$chosen$name "
+        done
+        echo "Scanners:${chosen}"
+        for name in checkov trivy kube-linter kubeconform; do
+          case "$chosen" in *" $name "*) value=true ;; *) value=false ;; esac
+          echo "${name//-/_}=$value" >> "$GITHUB_OUTPUT"
+        done
+
     - name: Detectar mudanças de infraestrutura
       id: changes
       shell: bash
@@ -91,17 +122,96 @@ runs:
         python -m venv "$RUNNER_TEMP/venv-reviewer"
         "$RUNNER_TEMP/venv-reviewer/bin/pip" install -q -r "$DIR/reviewer/requirements.txt"
 
+    # Cada scanner grava o JSON em $RUNNER_TEMP/scan-<nome>.json e a saída status=ok|failed.
+    # Um scanner que falha não derruba a revisão: o comentário avisa que ele não rodou.
     - name: Rodar o checkov
-      if: steps.changes.outputs.has-changes == 'true' && inputs.checkov == 'true'
+      id: checkov
+      if: steps.changes.outputs.has-changes == 'true' && steps.scanners.outputs.checkov == 'true'
       shell: bash
       env:
         CHECKOV_VERSION: ${{ inputs.checkov-version }}
       run: |
         # venv próprio: instalado junto com o revisor, o checkov pode rebaixar o boto3
-        python -m venv "$RUNNER_TEMP/venv-checkov"
-        "$RUNNER_TEMP/venv-checkov/bin/pip" install -q "checkov==$CHECKOV_VERSION"
-        "$RUNNER_TEMP/venv-checkov/bin/checkov" -d . --framework terraform kubernetes \
-          --compact --quiet --soft-fail > "$RUNNER_TEMP/checkov.txt"
+        if python -m venv "$RUNNER_TEMP/venv-checkov" \
+          && "$RUNNER_TEMP/venv-checkov/bin/pip" install -q "checkov==$CHECKOV_VERSION" \
+          && "$RUNNER_TEMP/venv-checkov/bin/checkov" -d . --framework terraform kubernetes \
+               --quiet --soft-fail -o json > "$RUNNER_TEMP/scan-checkov.json"; then
+          echo "status=ok" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning::O checkov não rodou."
+          echo "status=failed" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Rodar o Trivy
+      id: trivy
+      if: steps.changes.outputs.has-changes == 'true' && steps.scanners.outputs.trivy == 'true'
+      shell: bash
+      env:
+        URL: https://github.com/aquasecurity/trivy/releases/download/v0.76.0/trivy_0.76.0_Linux-64bit.tar.gz
+        SHA256: e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7
+      run: |
+        pkg="$RUNNER_TEMP/trivy.tar.gz"; bin="$RUNNER_TEMP/bin"; mkdir -p "$bin"
+        if curl -fsSL --retry 3 -o "$pkg" "$URL" \
+          && echo "$SHA256  $pkg" | sha256sum -c --quiet \
+          && tar -xzf "$pkg" -C "$bin" trivy \
+          && "$bin/trivy" config --quiet --cache-dir "$RUNNER_TEMP/trivy-cache" \
+               --severity MEDIUM,HIGH,CRITICAL --format json -o "$RUNNER_TEMP/scan-trivy.json" .; then
+          echo "status=ok" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning::O Trivy não rodou."
+          echo "status=failed" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Rodar o kube-linter
+      id: kube-linter
+      if: steps.changes.outputs.has-changes == 'true' && steps.scanners.outputs.kube_linter == 'true'
+      shell: bash
+      env:
+        URL: https://github.com/stackrox/kube-linter/releases/download/v0.8.3/kube-linter-linux.tar.gz
+        SHA256: 1a6d8419b11971372971fdbc22682b684ebfb7cf1c39591662d1b6ca736c41df
+      run: |
+        pkg="$RUNNER_TEMP/kube-linter.tar.gz"; bin="$RUNNER_TEMP/bin"; out="$RUNNER_TEMP/scan-kube-linter.json"
+        mkdir -p "$bin"
+        status=failed
+        if curl -fsSL --retry 3 -o "$pkg" "$URL" \
+          && echo "$SHA256  $pkg" | sha256sum -c --quiet \
+          && tar -xzf "$pkg" -C "$bin" kube-linter; then
+          # Sai com 1 quando há achados; o que importa é a saída ser um relatório válido
+          "$bin/kube-linter" lint . --include cluster-admin-role-binding,exposed-services --format json > "$out" || true
+          # Sem nenhum manifest, ele não escreve nada
+          [ -s "$out" ] || echo '{"Reports": []}' > "$out"
+          jq -e 'has("Reports")' "$out" > /dev/null && status=ok
+        fi
+        [ "$status" = ok ] || echo "::warning::O kube-linter não rodou."
+        echo "status=$status" >> "$GITHUB_OUTPUT"
+
+    - name: Rodar o kubeconform
+      id: kubeconform
+      if: steps.changes.outputs.has-changes == 'true' && steps.scanners.outputs.kubeconform == 'true'
+      shell: bash
+      env:
+        URL: https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz
+        SHA256: 9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883
+      run: |
+        pkg="$RUNNER_TEMP/kubeconform.tar.gz"; bin="$RUNNER_TEMP/bin"; out="$RUNNER_TEMP/scan-kubeconform.json"
+        mkdir -p "$bin"
+        status=failed
+        if curl -fsSL --retry 3 -o "$pkg" "$URL" \
+          && echo "$SHA256  $pkg" | sha256sum -c --quiet \
+          && tar -xzf "$pkg" -C "$bin" kubeconform; then
+          # Só arquivos com apiVersion e kind: workflows e outros YAML não são manifests
+          mapfile -t files < <(git ls-files '*.yaml' '*.yml' | while read -r f; do
+            grep -q '^apiVersion:' "$f" && grep -q '^kind:' "$f" && echo "$f"; done)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo '{"resources": []}' > "$out"
+          else
+            # Sai com 1 quando há manifest inválido
+            "$bin/kubeconform" -strict -ignore-missing-schemas -summary -output json "${files[@]}" > "$out" || true
+          fi
+          jq -e 'has("resources")' "$out" > /dev/null && status=ok
+        fi
+        [ "$status" = ok ] || echo "::warning::O kubeconform não rodou."
+        echo "status=$status" >> "$GITHUB_OUTPUT"
 
     - name: Configurar credenciais da AWS
       if: steps.changes.outputs.has-changes == 'true'
@@ -119,10 +229,22 @@ runs:
         BASE: ${{ steps.context.outputs.base }}
         MODEL_ID: ${{ inputs.model-id }}
         AWS_REGION: ${{ inputs.aws-region }}
+        STATUS_checkov: ${{ steps.checkov.outputs.status }}
+        STATUS_trivy: ${{ steps.trivy.outputs.status }}
+        STATUS_kube_linter: ${{ steps.kube-linter.outputs.status }}
+        STATUS_kubeconform: ${{ steps.kubeconform.outputs.status }}
       run: |
         out="$RUNNER_TEMP/review.md"
+        args=()
+        for name in checkov trivy kube-linter kubeconform; do
+          var="STATUS_${name//-/_}"
+          case "${!var:-}" in
+            ok) args+=(--scan "$name=$RUNNER_TEMP/scan-$name.json") ;;
+            failed) args+=(--scan-failed "$name") ;;
+          esac
+        done
         "$RUNNER_TEMP/venv-reviewer/bin/python" "$DIR/reviewer/review.py" \
-          --base "$BASE" --checkov "$RUNNER_TEMP/checkov.txt" --output "$out"
+          --base "$BASE" "${args[@]}" --output "$out"
         echo "review-file=$out" >> "$GITHUB_OUTPUT"
 
     - name: Comentar no PR

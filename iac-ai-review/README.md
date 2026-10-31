@@ -8,9 +8,10 @@ A cada execução, a action:
 1. Confere que o evento é `pull_request` e que o checkout tem o histórico completo.
 2. Procura mudanças em `.tf`, `.tfvars`, `.yaml` e `.yml`. **Sem mudanças, não assume a role nem
    chama o modelo**: o comentário só avisa que não há nada para revisar.
-3. Roda o **checkov** no repositório, para ter achados determinísticos.
+3. Roda os **scanners** (checkov, Trivy, kube-linter e kubeconform) no repositório, para ter
+   achados determinísticos.
 4. Assume uma role IAM via **OIDC** (credenciais temporárias).
-5. Envia o diff e a saída do checkov para o modelo, que devolve uma revisão em **JSON validado**
+5. Envia o diff e um resumo de cada scanner para o modelo, que devolve uma revisão em **JSON validado**
    (Pydantic).
 6. Publica a revisão num comentário fixo, atualizado a cada push.
 
@@ -62,8 +63,9 @@ versão da tag que você usa (`@v1`, `@v1.0.0` ou um SHA).
 | `aws-region` | não | `us-east-1` | região do Bedrock |
 | `model-id` | não | `anthropic.claude-opus-5-5` | modelo da revisão (veja a lista abaixo) |
 | `base-ref` | não | `origin/<base do PR>` | ref base do diff |
-| `checkov` | não | `true` | roda o checkov e envia o resultado ao modelo |
+| `scanners` | não | `checkov,trivy,kube-linter,kubeconform` | scanners que rodam antes do modelo |
 | `checkov-version` | não | `3.3.29` | versão do checkov |
+| `checkov` | não | `true` | **obsoleto**: `false` tira o checkov da lista; use `scanners` |
 | `comment` | não | `true` | publica o comentário no PR |
 
 ## Saída
@@ -145,6 +147,33 @@ Em **Settings → Secrets and variables → Actions**:
 O ARN da role não é uma credencial: ele fica como secret só para o ID da conta não aparecer no
 repositório nem nos logs. A action também mascara o ID da conta.
 
+## Scanners
+
+| Scanner | Versão | O que olha |
+|---|---|---|
+| [checkov](https://www.checkov.io/) | `3.3.29` (input `checkov-version`) | Terraform e Kubernetes |
+| [Trivy](https://trivy.dev/) (`trivy config`) | `v0.76.0` | Terraform e Kubernetes, só severidade média ou maior |
+| [kube-linter](https://github.com/stackrox/kube-linter) | `v0.8.3` | Kubernetes: regras padrão + `cluster-admin-role-binding` e `exposed-services` |
+| [kubeconform](https://github.com/yannh/kubeconform) | `v0.8.0` | schema dos manifests (`-strict`), não segurança |
+
+Os binários são baixados do GitHub Releases e só rodam se o SHA-256 bater com o fixado no
+`action.yml`. Cada relatório é resumido em uma linha por achado antes de ir para o modelo. Se um
+scanner falhar, a revisão sai com os outros, e o rodapé do comentário diz qual não rodou.
+
+Por que mais de um? Nos [exemplos](#exemplos), cada scanner pega coisas diferentes:
+
+| Risco | checkov | Trivy | kube-linter |
+|---|---|---|---|
+| SSH aberto, S3 público, RDS público, EKS aberto | ✅ | ✅ | — |
+| Política IAM `*` em `*` | ✅ | ❌ | — |
+| ServiceAccount com `cluster-admin` | ❌ | ✅ | ✅ |
+| Senha num ConfigMap | ❌ | ✅ | ❌ |
+| PostgreSQL num `LoadBalancer` público | ❌ | ❌ | ✅ |
+| Ingress sem TLS | ❌ | ❌ | ❌ |
+
+O Ingress sem TLS nenhum scanner aponta; só o modelo. A comparação completa está na
+[pesquisa da spec 003](../specs/003-mais-scanners/research.md).
+
 ## Exemplos
 
 A pasta [`examples/`](examples/) tem arquivos **propositalmente inseguros** para testar o revisor.
@@ -173,7 +202,7 @@ reviewer/review.py         monta o prompt, chama o modelo e gera o Markdown
 reviewer/requirements.txt  dependências do revisor, com versões fixadas
 iam/                       trust policy e política de exemplo da role
 examples/                  Terraform e manifests K8s inseguros, para testar
-tests/                     testes sem AWS (dublês do Bedrock)
+tests/                     testes sem AWS (dublês do Bedrock e saídas reais dos scanners)
 docs/                      constituição e spec do antigo iac-ai-reviewer (histórico)
 ```
 
@@ -192,8 +221,10 @@ Para revisar um repositório local com as suas credenciais (perfil SSO, sem acce
 da raiz desse repositório. Use um venv separado para o checkov, que pode rebaixar o `boto3`:
 
 ```bash
-checkov -d . --framework terraform kubernetes --compact --quiet --soft-fail > checkov.txt
-python caminho/para/iac-ai-review/reviewer/review.py --base origin/main --checkov checkov.txt
+checkov -d . --framework terraform kubernetes --quiet --soft-fail -o json > checkov.json
+trivy config --quiet --severity MEDIUM,HIGH,CRITICAL --format json -o trivy.json .
+python caminho/para/iac-ai-review/reviewer/review.py --base origin/main \
+  --scan checkov=checkov.json --scan trivy=trivy.json
 ```
 
 Outras variáveis aceitas pelo script: `MODEL_ID`, `AWS_REGION`, `FALLBACK_MODEL_ID` e

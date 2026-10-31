@@ -1,0 +1,564 @@
+{
+ "Results": [
+  {
+   "Target": "k8s/banco-exposto.yaml",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "KSV-0001",
+     "Title": "Can elevate its own privileges",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 29
+     }
+    },
+    {
+     "ID": "KSV-0012",
+     "Title": "Runs as root user",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 29
+     }
+    },
+    {
+     "ID": "KSV-0014",
+     "Title": "Root file system is not read-only",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 29
+     }
+    },
+    {
+     "ID": "KSV-0104",
+     "Title": "Seccomp policies disabled",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 29
+     }
+    },
+    {
+     "ID": "KSV-0109",
+     "Title": "ConfigMap with secrets",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": null
+     }
+    },
+    {
+     "ID": "KSV-0118",
+     "Title": "Default security context configured",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 29
+     }
+    },
+    {
+     "ID": "KSV-0118",
+     "Title": "Default security context configured",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 27
+     }
+    }
+   ]
+  },
+  {
+   "Target": "k8s/deployment.yaml",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "KSV-0001",
+     "Title": "Can elevate its own privileges",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0012",
+     "Title": "Runs as root user",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0013",
+     "Title": "Image tag \":latest\" used",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0014",
+     "Title": "Root file system is not read-only",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0104",
+     "Title": "Seccomp policies disabled",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0117",
+     "Title": "Prevent binding to privileged ports",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": null
+     }
+    },
+    {
+     "ID": "KSV-0118",
+     "Title": "Default security context configured",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 18
+     }
+    },
+    {
+     "ID": "KSV-0118",
+     "Title": "Default security context configured",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 16
+     }
+    }
+   ]
+  },
+  {
+   "Target": "k8s/ingress-sem-tls.yaml",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "k8s/pod-privilegiado.yaml",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "KSV-0001",
+     "Title": "Can elevate its own privileges",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 20
+     }
+    },
+    {
+     "ID": "KSV-0009",
+     "Title": "Access to host network",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 8
+     }
+    },
+    {
+     "ID": "KSV-0010",
+     "Title": "Access to host PID",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 8
+     }
+    },
+    {
+     "ID": "KSV-0012",
+     "Title": "Runs as root user",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 20
+     }
+    },
+    {
+     "ID": "KSV-0014",
+     "Title": "Root file system is not read-only",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 20
+     }
+    },
+    {
+     "ID": "KSV-0017",
+     "Title": "Privileged",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 20
+     }
+    },
+    {
+     "ID": "KSV-0023",
+     "Title": "hostPath volumes mounted",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 8
+     }
+    },
+    {
+     "ID": "KSV-0104",
+     "Title": "Seccomp policies disabled",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 20
+     }
+    },
+    {
+     "ID": "KSV-0118",
+     "Title": "Default security context configured",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 16
+     }
+    },
+    {
+     "ID": "KSV-0121",
+     "Title": "Kubernetes resource with disallowed volumes mounted",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 8
+     }
+    }
+   ]
+  },
+  {
+   "Target": "k8s/rbac-cluster-admin.yaml",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "KSV-0111",
+     "Title": "User with admin access",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 11
+     }
+    }
+   ]
+  },
+  {
+   "Target": "terraform",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/eks",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/eks/main.tf",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "AWS-0038",
+     "Title": "EKS Clusters should have cluster control plane logging turned on",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0038",
+     "Title": "EKS Clusters should have cluster control plane logging turned on",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0038",
+     "Title": "EKS Clusters should have cluster control plane logging turned on",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0038",
+     "Title": "EKS Clusters should have cluster control plane logging turned on",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0038",
+     "Title": "EKS Clusters should have cluster control plane logging turned on",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0039",
+     "Title": "EKS should have the encryption of secrets enabled",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0040",
+     "Title": "EKS Clusters should have the public access disabled",
+     "Severity": "CRITICAL",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 32
+     }
+    },
+    {
+     "ID": "AWS-0041",
+     "Title": "EKS cluster should not have open CIDR range for public access",
+     "Severity": "CRITICAL",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 34
+     }
+    }
+   ]
+  },
+  {
+   "Target": "terraform/iam",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/iam/main.tf",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/main.tf",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "AWS-0086",
+     "Title": "S3 Access block should block public ACL",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    },
+    {
+     "ID": "AWS-0087",
+     "Title": "S3 Access block should block public policy",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    },
+    {
+     "ID": "AWS-0090",
+     "Title": "S3 Data should be versioned",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    },
+    {
+     "ID": "AWS-0091",
+     "Title": "S3 Access Block should Ignore Public ACL",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    },
+    {
+     "ID": "AWS-0093",
+     "Title": "S3 Access block should restrict public bucket to limit access",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    },
+    {
+     "ID": "AWS-0104",
+     "Title": "A security group rule should not allow unrestricted egress to any IP address.",
+     "Severity": "CRITICAL",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 32
+     }
+    },
+    {
+     "ID": "AWS-0107",
+     "Title": "Security groups should not allow unrestricted ingress to SSH or RDP from any IP address.",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 25
+     }
+    },
+    {
+     "ID": "AWS-0132",
+     "Title": "S3 encryption should use Customer Managed Keys",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 36
+     }
+    }
+   ]
+  },
+  {
+   "Target": "terraform/rds",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/rds/main.tf",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "AWS-0077",
+     "Title": "RDS Cluster and RDS instance should have backup retention longer than default 1 day",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 28
+     }
+    },
+    {
+     "ID": "AWS-0080",
+     "Title": "RDS encryption has not been enabled at a DB Instance level.",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0176",
+     "Title": "RDS IAM Database Authentication Disabled",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 17
+     }
+    },
+    {
+     "ID": "AWS-0177",
+     "Title": "RDS Deletion Protection Disabled",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 30
+     }
+    },
+    {
+     "ID": "AWS-0180",
+     "Title": "RDS Publicly Accessible",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 25
+     }
+    }
+   ]
+  },
+  {
+   "Target": "terraform/s3-publico",
+   "Class": "config",
+   "Misconfigurations": []
+  },
+  {
+   "Target": "terraform/s3-publico/main.tf",
+   "Class": "config",
+   "Misconfigurations": [
+    {
+     "ID": "AWS-0086",
+     "Title": "S3 Access block should block public ACL",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 24
+     }
+    },
+    {
+     "ID": "AWS-0087",
+     "Title": "S3 Access block should block public policy",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 25
+     }
+    },
+    {
+     "ID": "AWS-0090",
+     "Title": "S3 Data should be versioned",
+     "Severity": "MEDIUM",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 17
+     }
+    },
+    {
+     "ID": "AWS-0091",
+     "Title": "S3 Access Block should Ignore Public ACL",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 26
+     }
+    },
+    {
+     "ID": "AWS-0093",
+     "Title": "S3 Access block should restrict public bucket to limit access",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 27
+     }
+    },
+    {
+     "ID": "AWS-0132",
+     "Title": "S3 encryption should use Customer Managed Keys",
+     "Severity": "HIGH",
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "StartLine": 17
+     }
+    }
+   ]
+  }
+ ]
+}

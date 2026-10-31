@@ -1,0 +1,224 @@
+{
+ "Reports": [
+  {
+   "Check": "no-read-only-root-fs",
+   "Diagnostic": {
+    "Message": "container \"postgres\" does not have a read-only root file system"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/banco-exposto.yaml"
+    }
+   }
+  },
+  {
+   "Check": "run-as-non-root",
+   "Diagnostic": {
+    "Message": "container \"postgres\" is not set to runAsNonRoot"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/banco-exposto.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-cpu-requirements",
+   "Diagnostic": {
+    "Message": "container \"postgres\" has cpu request 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/banco-exposto.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-memory-requirements",
+   "Diagnostic": {
+    "Message": "container \"postgres\" has memory limit 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/banco-exposto.yaml"
+    }
+   }
+  },
+  {
+   "Check": "exposed-services",
+   "Diagnostic": {
+    "Message": "\"LoadBalancer\" service type is forbidden."
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/banco-exposto.yaml"
+    }
+   }
+  },
+  {
+   "Check": "latest-tag",
+   "Diagnostic": {
+    "Message": "The container \"nginx\" is using an invalid container image, \"nginx:latest\". Please use images that are not blocked by the `BlockList` criteria : [\".*:(latest)$\" \"^[^:]*$\" \"(.*/[^:]+)$\"]"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/deployment.yaml"
+    }
+   }
+  },
+  {
+   "Check": "no-read-only-root-fs",
+   "Diagnostic": {
+    "Message": "container \"nginx\" does not have a read-only root file system"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/deployment.yaml"
+    }
+   }
+  },
+  {
+   "Check": "run-as-non-root",
+   "Diagnostic": {
+    "Message": "container \"nginx\" is not set to runAsNonRoot"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/deployment.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-cpu-requirements",
+   "Diagnostic": {
+    "Message": "container \"nginx\" has cpu request 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/deployment.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-memory-requirements",
+   "Diagnostic": {
+    "Message": "container \"nginx\" has memory limit 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/deployment.yaml"
+    }
+   }
+  },
+  {
+   "Check": "host-network",
+   "Diagnostic": {
+    "Message": "resource shares host's network namespace (via hostNetwork=true)."
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "host-pid",
+   "Diagnostic": {
+    "Message": "object shares the host's process namespace (via hostPID=true)."
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "no-read-only-root-fs",
+   "Diagnostic": {
+    "Message": "container \"agente\" does not have a read-only root file system"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "privilege-escalation-container",
+   "Diagnostic": {
+    "Message": "container \"agente\" has AllowPrivilegeEscalation set to true."
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "privileged-container",
+   "Diagnostic": {
+    "Message": "container \"agente\" is privileged"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "run-as-non-root",
+   "Diagnostic": {
+    "Message": "container \"agente\" is not set to runAsNonRoot"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "sensitive-host-mounts",
+   "Diagnostic": {
+    "Message": "host system directory \"/\" is mounted on container \"agente\""
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-cpu-requirements",
+   "Diagnostic": {
+    "Message": "container \"agente\" has cpu request 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "unset-memory-requirements",
+   "Diagnostic": {
+    "Message": "container \"agente\" has memory limit 0"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/pod-privilegiado.yaml"
+    }
+   }
+  },
+  {
+   "Check": "cluster-admin-role-binding",
+   "Diagnostic": {
+    "Message": "cluster-admin role is bound to [{\"kind\":\"ServiceAccount\",\"name\":\"app\",\"namespace\":\"app\"}]"
+   },
+   "Object": {
+    "Metadata": {
+     "FilePath": "/home/runner/work/repo/repo/k8s/rbac-cluster-admin.yaml"
+    }
+   }
+  }
+ ]
+}
