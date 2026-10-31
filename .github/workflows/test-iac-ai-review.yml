@@ -58,6 +58,31 @@ jobs:
       - name: Rodar os testes
         run: pytest -q
 
+  scanner-invalido:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: action
+        continue-on-error: true
+        uses: ./iac-ai-review
+        with:
+          role-to-assume: arn:aws:iam::111122223333:role/nao-existe
+          scanners: checkov,tfsec
+          base-ref: HEAD
+          comment: "false"
+
+      - name: Conferir que a action falhou
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "::error::Esperava falha com scanner desconhecido, veio $OUTCOME."
+            exit 1
+          fi
+
   com-aws:
     # Forks não recebem o token OIDC
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -78,6 +103,8 @@ jobs:
           git config user.email "teste@example.com"
           mkdir -p fixture-pr
           cp tests/fixtures/sg-ssh-aberto.tf fixture-pr/main.tf
+          # Manifest que o checkov não aponta, mas o Trivy e o kube-linter sim
+          cp iac-ai-review/examples/k8s/rbac-cluster-admin.yaml fixture-pr/rbac.yaml
           git add fixture-pr
           git commit -q -m "fixture"
 
@@ -94,3 +121,8 @@ jobs:
         run: |
           cat "$REVIEW_FILE"
           grep -q "Risco geral" "$REVIEW_FILE"
+          grep -q "Scanners: checkov, trivy, kube-linter, kubeconform" "$REVIEW_FILE"
+          if grep -q "não rodaram" "$REVIEW_FILE"; then
+            echo "::error::Algum scanner não rodou."
+            exit 1
+          fi

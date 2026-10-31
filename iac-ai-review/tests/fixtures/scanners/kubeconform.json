@@ -1,0 +1,28 @@
+{
+  "resources": [
+    {
+      "filename": "k8s-invalido.yaml",
+      "kind": "Deployment",
+      "name": "invalido",
+      "version": "apps/v1",
+      "status": "statusInvalid",
+      "msg": "problem validating schema. Check JSON formatting: jsonschema validation failed with 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/master-standalone-strict/deployment-apps-v1.json#' - at '/spec/replicas': got string, want null or integer - at '/spec/template/spec/containers/0': additional properties 'portas' not allowed",
+      "validationErrors": [
+        {
+          "path": "/spec/replicas",
+          "msg": "got string, want null or integer"
+        },
+        {
+          "path": "/spec/template/spec/containers/0",
+          "msg": "additional properties 'portas' not allowed"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "valid": 0,
+    "invalid": 1,
+    "errors": 0,
+    "skipped": 0
+  }
+}
