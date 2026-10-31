@@ -22,7 +22,7 @@ reviewer/review.py                script que monta o prompt, chama o modelo e ge
 iam/trust-policy.json             trust policy da role (OIDC do GitHub)
 iam/bedrock-policy.json           permissão para chamar os modelos no Bedrock
 specs/                            especificações (Spec Kit)
-examples/                         Terraform e manifest K8s com problemas, para testar
+examples/                         Terraform e manifests K8s com problemas, para testar
 tests/                            testes sem AWS (um servidor local simula o Bedrock)
 ```
 
@@ -102,6 +102,26 @@ Em **Settings → Secrets and variables → Actions**:
 A autenticação é toda por OIDC, sem access keys. O ARN da role não é uma
 credencial: ele fica como secret só para o ID da conta não aparecer no
 repositório nem nos logs.
+
+## Exemplos
+
+A pasta `examples/` tem arquivos **propositalmente inseguros** para testar o revisor.
+Não aplique nenhum deles numa conta ou num cluster de verdade.
+
+| Arquivo | Problemas |
+|---|---|
+| `terraform/main.tf` | Security Group com SSH aberto para `0.0.0.0/0`; bucket S3 sem configuração |
+| `terraform/rds/main.tf` | RDS público, sem criptografia, senha no código e sem backup |
+| `terraform/iam/main.tf` | usuário IAM com access key e política `Action: "*"` em `Resource: "*"` |
+| `terraform/s3-publico/main.tf` | bloqueio de acesso público desligado e leitura liberada para `Principal: "*"` |
+| `terraform/eks/main.tf` | endpoint da API aberto para `0.0.0.0/0`, sem logs do control plane e sem KMS nos Secrets |
+| `k8s/deployment.yaml` | imagem `latest`, senha em variável de ambiente, sem limites de recursos |
+| `k8s/pod-privilegiado.yaml` | DaemonSet privilegiado, como root, com `hostNetwork`, `hostPID` e `/` do nó montado |
+| `k8s/rbac-cluster-admin.yaml` | ServiceAccount de aplicação com `cluster-admin` |
+| `k8s/banco-exposto.yaml` | PostgreSQL num `LoadBalancer` público e senha num ConfigMap |
+| `k8s/ingress-sem-tls.yaml` | painel administrativo publicado por HTTP, sem TLS e sem autenticação |
+
+Para testar, crie uma branch, altere ou copie um desses arquivos e abra um PR.
 
 ## Rodando localmente
 

@@ -1,0 +1,33 @@
+# Exemplo propositalmente com problemas para testar a revisão:
+# container privilegiado, rodando como root, na rede do nó e com o disco do nó montado.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: agente-monitoramento
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: agente-monitoramento
+  template:
+    metadata:
+      labels:
+        app: agente-monitoramento
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: agente
+          image: busybox:1.37
+          command: ["sh", "-c", "while true; do sleep 3600; done"]
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: raiz-do-no
+              mountPath: /host
+      volumes:
+        - name: raiz-do-no
+          hostPath:
+            path: /
