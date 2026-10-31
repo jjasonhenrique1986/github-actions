@@ -26,7 +26,7 @@
 
 ## Phase 5: Fechamento
 
-- [ ] T010 `apply` da role `gh-github-actions` (usuário), secret `AWS_ROLE_ARN` e variável `MODEL_ID`;
+- [x] T010 `apply` da role `gh-github-actions` (usuário), secret `AWS_ROLE_ARN` e variável `MODEL_ID`;
   rodar o CI completo
 - [ ] T011 Merge do PR (usuário); tags `v1.0.0` e `v1`
 - [ ] T012 Remover a role `gh-iac-ai-reviewer` do `aws-iam-baseline` (`plan` por mim, `apply` pelo usuário)
