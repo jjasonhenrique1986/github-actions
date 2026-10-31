@@ -69,11 +69,11 @@
 
 - [x] T014 [P] README: lista de modelos, como escolher (`MODEL_ID`), `--list-models`, IAM por modelo em
   `README.md`
-- [ ] T015 [P] IAM: `bedrock:InvokeModel` nos ARNs gpt-oss na política da role do GitHub em
+- [x] T015 [P] IAM: `bedrock:InvokeModel` nos ARNs gpt-oss na política da role do GitHub em
   `aws-iam-baseline/main.tf` (outro repositório; `apply` feito pelo usuário)
 - [x] T016 [P] IAM: permission set `IacAiReviewer` e perfil `iac-ai-reviewer` no `~/.aws/config` (CLI)
 - [x] T017 Rodar `pytest` e os cenários 2 a 4 do quickstart.md com o perfil `iac-ai-reviewer`
-- [ ] T018 Cenário 5 do quickstart.md (GitHub) depois do `apply` de T015
+- [x] T018 Cenário 5 do quickstart.md (GitHub) depois do `apply` de T015
 
 ## Dependencies & Execution Order
 
