@@ -1,6 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: template → 1.0.0 (primeira adoção)
+- Version change: 1.0.0 → 2.0.0 (MAJOR: redefine o Princípio IV)
+- Princípio alterado: IV. Saída validada — achados malformados podem ser descartados um a um, com aviso
+  no comentário; resumo ou risco inválidos continuam sendo falha
+- Motivo: com diffs maiores, o gpt-oss devolve achados cortados (aspas sem escape) e a revisão inteira
+  era perdida na maioria das execuções (PR #4)
+- Templates: nenhum precisa de mudança
+- TODOs: nenhum
+
+Histórico:
+- template → 1.0.0 (primeira adoção)
 - Princípios definidos: I. Sem credenciais fixas; II. Menor privilégio; III. A IA explica, não decide;
   IV. Saída validada; V. Testável sem AWS; VI. Documentação em português
 - Seções adicionadas: Restrições de segurança e plataforma; Fluxo de desenvolvimento; Governance
@@ -41,11 +50,15 @@ Racional: a decisão de merge é humana; a IA é apoio.
 
 ### IV. Saída validada
 
-Toda resposta de modelo MUST ser validada contra o schema da revisão antes de ser publicada.
-Resposta que não passa na validação é tratada como falha (Princípio III), não é publicada pela metade.
+Toda resposta de modelo MUST ser validada contra o schema da revisão antes de ser publicada. Se o
+resumo ou o risco geral não passarem na validação, a resposta é tratada como falha (Princípio III).
+Achados individuais malformados MAY ser descartados, desde que o comentário MUST dizer quantos foram
+descartados; nenhum achado MAY ser publicado incompleto ou corrigido por adivinhação.
 O diff MUST NOT ser cortado em silêncio: acima do limite, o revisor avisa e não chama o modelo.
 
-Racional: um comentário com formato quebrado ou baseado em diff parcial engana quem revisa.
+Racional: um comentário com formato quebrado ou baseado em diff parcial engana quem revisa. Descartar
+um achado com aviso explícito é transparente; perder a revisão inteira por um achado cortado não
+ajuda ninguém.
 
 ### V. Testável sem AWS
 
@@ -81,4 +94,4 @@ este arquivo, com o motivo na descrição e a versão atualizada por semver: MAJ
 redefinir um princípio, MINOR para adicionar princípio ou seção, PATCH para ajustes de texto.
 Toda spec e todo plano MUST passar pelo "Constitution Check" do `plan.md` antes da implementação.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-10-31
+**Version**: 2.0.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-10-31
