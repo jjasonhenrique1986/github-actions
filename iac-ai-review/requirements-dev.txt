@@ -1,0 +1,2 @@
+-r reviewer/requirements.txt
+pytest
