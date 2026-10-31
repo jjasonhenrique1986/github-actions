@@ -20,8 +20,8 @@
 ## Phase 4: User Story 3 - Lugar novo (P3)
 
 - [x] T007 [P] [US3] README da action incorporando o README do iac-ai-reviewer; README da raiz
-- [ ] T008 [US3] iac-ai-reviewer: README de aviso, fechar #3 e #4 com comentário, arquivar
-- [ ] T009 [P] [US3] Posts do blog (PR #10): links para `github-actions/iac-ai-review` e uso pela action
+- [ ] T008 [US3] iac-ai-reviewer: README de aviso, fechar #3 e #4 com comentário, arquivar (PR #5 do iac-ai-reviewer aberto; merge pelo usuário)
+- [x] T009 [P] [US3] Posts do blog (PR #10): links para `github-actions/iac-ai-review` e uso pela action
   na parte 3
 
 ## Phase 5: Fechamento
