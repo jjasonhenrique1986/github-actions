@@ -34,7 +34,7 @@
 ## Phase 7: Polish
 
 - [x] T012 [P] README: scanners, input, tabela de cobertura do research
-- [ ] T013 Medir o prompt dos exemplos com os 4 scanners (SC-002) e o tempo do job (SC-003)
+- [x] T013 Medir: resumos dos 4 scanners nos exemplos = 16 268 caracteres (SC-002); job `com-aws` 55 s com os 4 scanners contra 56 s na v1.0 (SC-003)
 - [ ] T014 PR, CI verde (inclusive `com-aws`), merge pelo usuário, tags `v1.1.0` e `v1`
 
 ## Dependencies
