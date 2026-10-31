@@ -1,0 +1,20 @@
+# Exemplo propositalmente com problemas para testar a revisão:
+# a ServiceAccount de uma aplicação comum recebe cluster-admin no cluster inteiro.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app
+  namespace: app
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: app-cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: app
+    namespace: app
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin

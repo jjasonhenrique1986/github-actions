@@ -16,7 +16,7 @@
 - [ ] T004 [P] IAM: role `gh-github-actions` em `aws-iam-baseline/github-oidc.tf` pelo módulo
   `github-oidc-role` (sub imutável do novo repositório, só `pull_request`, só `bedrock:InvokeModel`
   no gpt-oss); `plan` por mim, `apply` pelo usuário
-- [ ] T005 Secret `AWS_ROLE_ARN` e variável `MODEL_ID=openai.gpt-oss-120b-1:0` no novo repositório
+- [x] T005 Secret `AWS_ROLE_ARN` e variável `MODEL_ID=openai.gpt-oss-120b-1:0` no novo repositório
   (depende de T004)
 
 ## Phase 3: User Story 1 - Revisar PRs de outro repositório (P1) 🎯 MVP

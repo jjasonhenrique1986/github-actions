@@ -1,15 +1,11 @@
 name: Testes da iac-ai-review
 
+# Só pull_request: a action recusa outros eventos
 on:
   pull_request:
-  workflow_dispatch:
 
 permissions:
   contents: read
-
-env:
-  # Versão do iac-ai-reviewer usada nos testes. Trocar pela tag v1.0.0 quando ela existir (T003).
-  REVIEWER_VERSION: 0d63b8b0d8c58526ff270a1ffb1dbcd7c1460261
 
 jobs:
   actionlint:
@@ -33,7 +29,6 @@ jobs:
         uses: ./iac-ai-review
         with:
           role-to-assume: arn:aws:iam::111122223333:role/nao-existe
-          reviewer-version: ${{ env.REVIEWER_VERSION }}
           base-ref: HEAD
           comment: "false"
 
@@ -48,30 +43,20 @@ jobs:
             exit 1
           fi
 
-  versao-inexistente:
+  pytest:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: iac-ai-review
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
-          fetch-depth: 0
-
-      - id: action
-        continue-on-error: true
-        uses: ./iac-ai-review
-        with:
-          role-to-assume: arn:aws:iam::111122223333:role/nao-existe
-          reviewer-version: v0.0.0-nao-existe
-          base-ref: HEAD
-          comment: "false"
-
-      - name: Conferir que a action falhou
-        env:
-          OUTCOME: ${{ steps.action.outcome }}
-        run: |
-          if [ "$OUTCOME" != "failure" ]; then
-            echo "::error::Esperava falha com versão inexistente, veio $OUTCOME."
-            exit 1
-          fi
+          python-version: "3.12"
+      - name: Instalar dependências
+        run: pip install -r requirements-dev.txt
+      - name: Rodar os testes
+        run: pytest -q
 
   com-aws:
     # Forks não recebem o token OIDC
@@ -101,7 +86,6 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           model-id: ${{ vars.MODEL_ID }}
-          reviewer-version: ${{ env.REVIEWER_VERSION }}
           base-ref: HEAD~1
 
       - name: Conferir o resultado
