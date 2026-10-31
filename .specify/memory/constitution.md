@@ -1,6 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: template → 1.0.0 (primeira adoção)
+- Version change: 1.0.0 → 2.0.0 (MAJOR: redefine o Princípio I; adiciona a seção "Regras da iac-ai-review")
+- Princípio alterado: I. "Action fina, lógica no projeto" → "Action autocontida": o código, os testes e
+  os exemplos de cada action ficam na pasta dela, neste repositório
+- Seções adicionadas: Regras da iac-ai-review (princípios III a V da constituição do iac-ai-reviewer,
+  que é incorporado aqui)
+- Princípio II: o input de versão do projeto deixa de existir; a versão é a da própria action
+- Motivo: decisão do usuário em 2026-10-31 de manter o código junto da action (spec 002)
+- Templates: nenhum precisa de mudança
+- TODOs: nenhum
+
+Histórico:
+- template → 1.0.0 (primeira adoção)
 - Princípios definidos: I. Action fina, lógica no projeto; II. Versões fixadas; III. Sem credenciais
   fixas; IV. Permissões mínimas; V. Testada no próprio repositório; VI. Documentação em português
 - Seções adicionadas: Restrições de plataforma; Fluxo de desenvolvimento; Governance
@@ -15,18 +26,20 @@ Repositório público que guarda actions reutilizáveis do GitHub. Cada action f
 
 ## Core Principles
 
-### I. Action fina, lógica no projeto
+### I. Action autocontida
 
-Uma action MUST só orquestrar: preparar o ambiente, buscar o código do projeto que ela representa e
-chamá-lo. A lógica de negócio (por exemplo, montar o prompt ou validar a revisão) MUST ficar no
-repositório do projeto, nunca copiada para cá. Cada action documenta qual projeto ela chama.
+Cada action MUST ficar inteira na sua pasta (`<nome>/`): `action.yml`, código, dependências fixadas,
+testes, exemplos e README. A action MUST usar o código da própria pasta (`github.action_path`) e MUST
+NOT baixar código de outro repositório em tempo de execução. O repositório que usa a action só cria
+um workflow; nenhum arquivo é copiado para ele.
 
-Racional: uma correção no projeto chega a todos os usuários da action sem duplicar código.
+Racional: uma versão da action identifica exatamente o código que roda, sem uma segunda versão para
+acompanhar, e uma correção chega a todos os usuários quando eles atualizam a tag.
 
 ### II. Versões fixadas
 
-O código do projeto chamado pela action MUST ser buscado numa versão fixa (tag ou SHA), escolhida por
-um input com valor padrão. Actions de terceiros MUST ser fixadas por tag de versão. As actions deste
+Dependências de código (por exemplo, `requirements.txt`) MUST ser fixadas por versão exata.
+Actions de terceiros MUST ser fixadas por tag de versão. As actions deste
 repositório são publicadas com tags semver (`v1.2.3`) e uma tag de versão principal móvel (`v1`).
 Mudança incompatível nos inputs ou no comportamento MUST gerar uma nova versão principal.
 
@@ -66,16 +79,29 @@ Racional: o repositório acompanha o blog, que é em português, e é público.
 ## Restrições de plataforma
 
 - Tipo de action: composite (`runs.using: composite`), sem imagem Docker própria e sem código
-  JavaScript compilado neste repositório.
+  JavaScript compilado neste repositório. O código das actions é Python 3.12.
 - Runner: `ubuntu-latest` do GitHub.
 - State de qualquer IaC de apoio fica em `s3://terraform-projetos/<projeto>/`; mudanças de IAM ficam
   no `aws-iam-baseline`, não aqui.
+
+## Regras da iac-ai-review
+
+Herdadas da constituição do iac-ai-reviewer (2.0.0), que foi incorporado a este repositório:
+
+- **A IA explica, não decide**: a revisão é só um comentário no PR; ela nunca aprova, bloqueia ou
+  altera o PR, e o job não falha por causa do conteúdo da revisão. Falhas do modelo viram mensagem
+  clara no comentário ou no log, nunca um resultado inventado.
+- **Saída validada**: toda resposta é validada contra o schema da revisão. Resumo ou risco inválidos
+  são falha; achados malformados podem ser descartados um a um, e o comentário diz quantos. O diff
+  nunca é cortado em silêncio.
+- **Testável sem AWS**: toda funcionalidade tem testes (`pytest`) que rodam sem credenciais e sem
+  rede da AWS; testes contra a AWS real ficam no job `com-aws`.
 
 ## Fluxo de desenvolvimento
 
 - Toda action nova ou mudança de comportamento segue o Spec Kit: `spec.md` → `plan.md` →
   `tasks.md` → implementação, com aprovação entre a spec e a implementação.
-- Todo PR MUST passar no workflow de teste e no `actionlint`.
+- Todo PR MUST passar no workflow de teste, no `actionlint` e no `pytest` das actions com Python.
 - Release: tag semver + atualização da tag principal, depois do merge na `main`.
 
 ## Governance
@@ -85,4 +111,4 @@ este arquivo, com o motivo na descrição e a versão atualizada por semver: MAJ
 redefinir um princípio, MINOR para adicionar princípio ou seção, PATCH para ajustes de texto.
 Toda spec e todo plano MUST passar pelo "Constitution Check" do `plan.md` antes da implementação.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-10-31
+**Version**: 2.0.0 | **Ratified**: 2026-10-31 | **Last Amended**: 2026-10-31
