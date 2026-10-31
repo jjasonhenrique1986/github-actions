@@ -51,17 +51,19 @@ aws iam put-role-policy \
 O `sub` da trust policy é `repo:meu-usuario/meu-repo:pull_request`, ou seja, só
 workflows disparados por pull requests desse repositório assumem a role.
 
-### 3. Variáveis do repositório
+### 3. Secret e variáveis do repositório
 
-Em **Settings → Secrets and variables → Actions → Variables**:
+Em **Settings → Secrets and variables → Actions**:
 
-| Variável | Obrigatória | Exemplo |
-|---|---|---|
-| `AWS_ROLE_ARN` | sim | `arn:aws:iam::111122223333:role/github-iac-ai-reviewer` |
-| `AWS_REGION` | não (padrão `us-east-1`) | `us-east-1` |
-| `MODEL_ID` | não (padrão `anthropic.claude-opus-5-5`) | `anthropic.claude-sonnet-5-5` |
+| Nome | Tipo | Obrigatório | Exemplo |
+|---|---|---|---|
+| `AWS_ROLE_ARN` | Secret | sim | `arn:aws:iam::111122223333:role/github-iac-ai-reviewer` |
+| `AWS_REGION` | Variable | não (padrão `us-east-1`) | `us-east-1` |
+| `MODEL_ID` | Variable | não (padrão `anthropic.claude-opus-5-5`) | `anthropic.claude-sonnet-5-5` |
 
-Não há nenhum secret: a autenticação é toda por OIDC.
+A autenticação é toda por OIDC, sem access keys. O ARN da role não é uma
+credencial: ele fica como secret só para o ID da conta não aparecer no
+repositório nem nos logs.
 
 ## Rodando localmente
 
