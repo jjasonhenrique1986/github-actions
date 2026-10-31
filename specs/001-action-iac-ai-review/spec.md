@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-31
 
-**Status**: Draft
+**Status**: Aprovada (2026-10-31)
 
 **Input**: Descrição do usuário: "sobre o projeto podemos criar uma action do github e apenas
 direcionar para esse projeto; nesse caso crie um repo para armazenar as actions". O projeto é o

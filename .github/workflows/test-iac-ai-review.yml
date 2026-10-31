@@ -1,0 +1,112 @@
+name: Testes da iac-ai-review
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Versão do iac-ai-reviewer usada nos testes. Trocar pela tag v1.0.0 quando ela existir (T003).
+  REVIEWER_VERSION: 0d63b8b0d8c58526ff270a1ffb1dbcd7c1460261
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Rodar o actionlint
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+          ./actionlint -color
+
+  sem-aws:
+    # PR sem mudanças de infraestrutura: a action não pode assumir a role nem chamar o modelo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: action
+        uses: ./iac-ai-review
+        with:
+          role-to-assume: arn:aws:iam::111122223333:role/nao-existe
+          reviewer-version: ${{ env.REVIEWER_VERSION }}
+          base-ref: HEAD
+          comment: "false"
+
+      - name: Conferir o resultado
+        env:
+          REVIEW_FILE: ${{ steps.action.outputs.review-file }}
+        run: |
+          cat "$REVIEW_FILE"
+          grep -q "Nenhuma mudança em Terraform ou YAML" "$REVIEW_FILE"
+          if [ -n "${AWS_ACCESS_KEY_ID:-}" ]; then
+            echo "::error::A action configurou credenciais da AWS sem mudanças de infraestrutura."
+            exit 1
+          fi
+
+  versao-inexistente:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: action
+        continue-on-error: true
+        uses: ./iac-ai-review
+        with:
+          role-to-assume: arn:aws:iam::111122223333:role/nao-existe
+          reviewer-version: v0.0.0-nao-existe
+          base-ref: HEAD
+          comment: "false"
+
+      - name: Conferir que a action falhou
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "::error::Esperava falha com versão inexistente, veio $OUTCOME."
+            exit 1
+          fi
+
+  com-aws:
+    # Forks não recebem o token OIDC
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Criar um commit local com o fixture
+        # O diff revisado é sempre o fixture, não importa o que o PR altera
+        run: |
+          git config user.name "teste"
+          git config user.email "teste@example.com"
+          mkdir -p fixture-pr
+          cp tests/fixtures/sg-ssh-aberto.tf fixture-pr/main.tf
+          git add fixture-pr
+          git commit -q -m "fixture"
+
+      - id: action
+        uses: ./iac-ai-review
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          model-id: ${{ vars.MODEL_ID }}
+          reviewer-version: ${{ env.REVIEWER_VERSION }}
+          base-ref: HEAD~1
+
+      - name: Conferir o resultado
+        env:
+          REVIEW_FILE: ${{ steps.action.outputs.review-file }}
+        run: |
+          cat "$REVIEW_FILE"
+          grep -q "Risco geral" "$REVIEW_FILE"

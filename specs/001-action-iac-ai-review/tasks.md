@@ -6,9 +6,9 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Criar o repositório público `jjasonhenrique1986/github-actions` no GitHub e publicar a `main`
+- [x] T001 Criar o repositório público `jjasonhenrique1986/github-actions` no GitHub e publicar a `main`
   com o Spec Kit, a constituição e esta spec
-- [ ] T002 [P] `README.md` na raiz: o que é o repositório, índice das actions, regra de versões
+- [x] T002 [P] `README.md` na raiz: o que é o repositório, índice das actions, regra de versões
 
 ## Phase 2: Foundational (pré-requisitos externos)
 
@@ -21,31 +21,31 @@
 
 ## Phase 3: User Story 1 - Revisar PRs de outro repositório (P1) 🎯 MVP
 
-- [ ] T006 [US1] `iac-ai-review/action.yml`: inputs, validações (evento, checkout raso), busca do
+- [x] T006 [US1] `iac-ai-review/action.yml`: inputs, validações (evento, checkout raso), busca do
   revisor em `$RUNNER_TEMP`, setup-python, venv do revisor, checkov em venv próprio,
   configure-aws-credentials com `mask-aws-account-id`, `review.py`, comentário fixo, saída `review-file`
-- [ ] T007 [P] [US1] `tests/fixtures/sg-ssh-aberto.tf` (Security Group com SSH aberto)
-- [ ] T008 [US1] Job `com-aws` em `.github/workflows/test-iac-ai-review.yml`: commit local do fixture,
+- [x] T007 [P] [US1] `tests/fixtures/sg-ssh-aberto.tf` (Security Group com SSH aberto)
+- [x] T008 [US1] Job `com-aws` em `.github/workflows/test-iac-ai-review.yml`: commit local do fixture,
   `base-ref: HEAD~1`, confere que o `review-file` tem "Risco geral" e publica o comentário
 
 ## Phase 4: User Story 2 - Controlar a versão do revisor (P2)
 
-- [ ] T009 [US2] Input `reviewer-version` (padrão `v1.0.0`), versão impressa no log e erro claro para
+- [x] T009 [US2] Input `reviewer-version` (padrão `v1.0.0`), versão impressa no log e erro claro para
   versão inexistente
-- [ ] T010 [US2] Job de teste que roda com uma versão inexistente e confere que o passo falha com a
+- [x] T010 [US2] Job de teste que roda com uma versão inexistente e confere que o passo falha com a
   mensagem esperada (`continue-on-error` + checagem do resultado)
 
 ## Phase 5: User Story 3 - Não gastar com PRs sem infraestrutura (P3)
 
-- [ ] T011 [US3] Passo de detecção de mudanças com saída `has-changes`; checkov e credenciais
+- [x] T011 [US3] Passo de detecção de mudanças com saída `has-changes`; checkov e credenciais
   condicionados a ele
-- [ ] T012 [US3] Job `sem-aws`: `base-ref: HEAD`, `comment: false`, role fictícia; confere que o
+- [x] T012 [US3] Job `sem-aws`: `base-ref: HEAD`, `comment: false`, role fictícia; confere que o
   `review-file` diz "Nenhuma mudança" e que nenhum passo de credencial rodou
 
 ## Phase 6: Polish
 
-- [ ] T013 [P] Job `actionlint` no mesmo workflow (versão fixada)
-- [ ] T014 [P] README da action: workflow mínimo, permissions, forks, role (link para o
+- [x] T013 [P] Job `actionlint` no mesmo workflow (versão fixada)
+- [x] T014 [P] README da action: workflow mínimo, permissions, forks, role (link para o
   iac-ai-reviewer), tabela de inputs e saída
 - [ ] T015 PR no novo repositório; conferir os 3 jobs; merge pelo usuário; tags `v1.0.0` e `v1`
 - [ ] T016 Validar SC-002: comparar o comentário do job `com-aws` com o do iac-ai-reviewer para o
