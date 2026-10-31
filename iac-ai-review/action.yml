@@ -1,7 +1,7 @@
 name: Revisão de IaC com IA
 description: >-
-  Revisa as mudanças de Terraform e Kubernetes de um Pull Request com IA no Amazon Bedrock e comenta
-  no PR. Roda o iac-ai-reviewer (https://github.com/jjasonhenrique1986/iac-ai-reviewer) numa versão fixa.
+  Revisa as mudanças de Terraform e Kubernetes de um Pull Request com IA no Amazon Bedrock (Claude ou
+  gpt-oss) e comenta no PR.
 author: Jason Henrique
 
 inputs:
@@ -13,13 +13,9 @@ inputs:
     required: false
     default: us-east-1
   model-id:
-    description: Modelo usado na revisão (MODEL_ID do iac-ai-reviewer). Vazio usa o padrão do revisor.
+    description: Modelo usado na revisão. Vazio usa o padrão (anthropic.claude-opus-5-5).
     required: false
     default: ""
-  reviewer-version:
-    description: Tag ou SHA do iac-ai-reviewer.
-    required: false
-    default: v1.0.0
   base-ref:
     description: Ref base do diff. Vazio usa origin/<branch base do PR>.
     required: false
@@ -50,7 +46,6 @@ runs:
       shell: bash
       env:
         INPUT_BASE_REF: ${{ inputs.base-ref }}
-        REVIEWER_VERSION: ${{ inputs.reviewer-version }}
       run: |
         if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
           echo "::error::A action iac-ai-review roda só em eventos pull_request (evento atual: $GITHUB_EVENT_NAME)."
@@ -66,7 +61,6 @@ runs:
           exit 1
         fi
         echo "base=$base" >> "$GITHUB_OUTPUT"
-        echo "Versão do iac-ai-reviewer: $REVIEWER_VERSION"
 
     - name: Detectar mudanças de infraestrutura
       id: changes
@@ -74,7 +68,7 @@ runs:
       env:
         BASE: ${{ steps.context.outputs.base }}
       run: |
-        # Os mesmos padrões do iac-ai-reviewer (FILE_PATTERNS)
+        # Os mesmos padrões do revisor (FILE_PATTERNS em reviewer/review.py)
         files="$(git diff --name-only "$BASE...HEAD" -- '*.tf' '*.tfvars' '*.yaml' '*.yml')"
         if [ -n "$files" ]; then
           echo "has-changes=true" >> "$GITHUB_OUTPUT"
@@ -85,25 +79,6 @@ runs:
           echo "Nenhuma mudança de infraestrutura: a AWS não será chamada."
         fi
 
-    - name: Buscar o iac-ai-reviewer
-      id: reviewer
-      shell: bash
-      env:
-        REVIEWER_VERSION: ${{ inputs.reviewer-version }}
-      run: |
-        # Fora do workspace: o código do revisor não entra no diff nem no checkov do repositório
-        dir="$RUNNER_TEMP/iac-ai-reviewer"
-        rm -rf "$dir" && mkdir -p "$dir" && cd "$dir"
-        git init -q
-        git remote add origin https://github.com/jjasonhenrique1986/iac-ai-reviewer.git
-        if ! git fetch -q --depth 1 origin "$REVIEWER_VERSION"; then
-          echo "::error::Versão '$REVIEWER_VERSION' do iac-ai-reviewer não encontrada."
-          exit 1
-        fi
-        git checkout -q FETCH_HEAD
-        echo "iac-ai-reviewer $REVIEWER_VERSION ($(git rev-parse HEAD))"
-        echo "dir=$dir" >> "$GITHUB_OUTPUT"
-
     - uses: actions/setup-python@v7
       with:
         python-version: "3.12"
@@ -111,7 +86,7 @@ runs:
     - name: Instalar o revisor
       shell: bash
       env:
-        DIR: ${{ steps.reviewer.outputs.dir }}
+        DIR: ${{ github.action_path }}
       run: |
         python -m venv "$RUNNER_TEMP/venv-reviewer"
         "$RUNNER_TEMP/venv-reviewer/bin/pip" install -q -r "$DIR/reviewer/requirements.txt"
@@ -140,7 +115,7 @@ runs:
       id: review
       shell: bash
       env:
-        DIR: ${{ steps.reviewer.outputs.dir }}
+        DIR: ${{ github.action_path }}
         BASE: ${{ steps.context.outputs.base }}
         MODEL_ID: ${{ inputs.model-id }}
         AWS_REGION: ${{ inputs.aws-region }}

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-31
 
-**Status**: Draft
+**Status**: Aprovada (2026-10-31)
 
 **Input**: Decisão do usuário: "o código do iac-ai-reviewer [pode] estar junto da action e nos meus
 outros repos eu apenas crio um workflow com a action", escolhendo mover o código para este repositório

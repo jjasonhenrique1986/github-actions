@@ -8,14 +8,14 @@ Actions reutilizáveis do GitHub. Cada action fica numa pasta própria e é usad
 
 ## Actions
 
-| Action | O que faz | Projeto |
-|---|---|---|
-| [`iac-ai-review`](iac-ai-review/) | Revisa Terraform e Kubernetes de um Pull Request com IA no Amazon Bedrock e comenta no PR | [iac-ai-reviewer](https://github.com/jjasonhenrique1986/iac-ai-reviewer) |
+| Action | O que faz |
+|---|---|
+| [`iac-ai-review`](iac-ai-review/) | Revisa Terraform e Kubernetes de um Pull Request com IA no Amazon Bedrock (Claude ou gpt-oss) e comenta no PR |
 
 ## Regras
 
-- **A action só orquestra.** A lógica fica no repositório do projeto, que a action busca numa versão
-  fixa. Uma correção no projeto chega a todos que usam a action.
+- **Cada action é autocontida.** Código, testes, exemplos e documentação ficam na pasta dela. O
+  repositório que usa a action só cria um workflow; nada é copiado nem baixado de outro lugar.
 - **Versões:** tags semver (`v1.2.3`) e uma tag principal móvel (`v1`). Mudança incompatível gera uma
   nova versão principal. Para builds 100% reproduzíveis, fixe a tag completa ou o SHA.
 - **Sem credenciais fixas:** acesso à AWS só por OIDC, com uma role própria por repositório.
