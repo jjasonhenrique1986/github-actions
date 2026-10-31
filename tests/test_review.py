@@ -219,13 +219,33 @@ def test_converse_retries_once_on_invalid_answer():
 
 def test_converse_gives_up_after_two_invalid_answers():
     client = aws_client("bedrock-runtime")
-    invalid = {**REVIEW_JSON, "findings": [{"resource": "aws_security_group.web"}]}
+    invalid = {"findings": REVIEW_JSON["findings"]}  # sem summary e risk: nada a aproveitar
     with Stubber(client) as stub:
         stub.add_response("converse", converse_response([tool_use(invalid)]))
         stub.add_response("converse", converse_response([tool_use(invalid)]))
         result = review.ask_converse(client, GPT_OSS, "p")
         stub.assert_no_pending_responses()
     assert result == "Não foi possível interpretar a resposta do modelo."
+
+
+def test_converse_keeps_valid_findings_when_one_is_truncated():
+    # Caso real do gpt-oss: o texto para em `["` e o campo seguinte some
+    truncated = {"file": "examples/terraform/eks/main.tf", "severity": "alta", "title": "EKS público",
+                 "explanation": "`public_access_cidrs = ["}
+    worse = {**REVIEW_JSON, "findings": [truncated, truncated]}
+    better = {**REVIEW_JSON, "findings": [*REVIEW_JSON["findings"], truncated]}
+    client = aws_client("bedrock-runtime")
+    with Stubber(client) as stub:
+        stub.add_response("converse", converse_response([tool_use(worse)]))
+        stub.add_response("converse", converse_response([tool_use(better)]))
+        result = review.ask_converse(client, GPT_OSS, "p")
+        stub.assert_no_pending_responses()
+    assert isinstance(result, review.Review)
+    assert [f.title for f in result.findings] == ["SSH aberto para 0.0.0.0/0"]
+    assert result._discarded == 1
+    text = review.render(result, GPT_OSS)
+    assert "1 achado(s) descartado(s)" in text
+    assert "_discarded" not in json.dumps(review.review_schema())
 
 
 def test_converse_max_tokens():

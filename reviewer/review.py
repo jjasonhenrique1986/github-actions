@@ -15,7 +15,7 @@ import anthropic
 import boto3
 from anthropic import AnthropicBedrockMantle, BetaFallbackState, BetaRefusalFallbackMiddleware
 from botocore.exceptions import BotoCoreError, ClientError
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, PrivateAttr, ValidationError
 
 
 @dataclass(frozen=True)
@@ -75,6 +75,8 @@ class Review(BaseModel):
     summary: str
     risk: Literal["alto", "medio", "baixo"]
     findings: list[Finding]
+    # Achados que vieram malformados e foram descartados. Atributo privado: não entra no schema enviado ao modelo.
+    _discarded: int = PrivateAttr(default=0)
 
 
 def supported_ids() -> str:
@@ -157,6 +159,7 @@ def ask_converse(client, model: str, prompt: str) -> Review | str:
             "inputSchema": {"json": review_schema()},
         }
     }
+    best: Review | None = None
     for _ in range(CONVERSE_ATTEMPTS):
         response = client.converse(
             modelId=model,
@@ -177,9 +180,35 @@ def ask_converse(client, model: str, prompt: str) -> Review | str:
                 try:
                     return Review.model_validate(tool_use["input"])
                 except ValidationError:
+                    partial = salvage_review(tool_use["input"])
+                    if partial and (best is None or partial._discarded < best._discarded):
+                        best = partial
                     break
         # Sem a ferramenta ou fora do schema: tenta de novo
+    if best is not None:
+        return best
     return "Não foi possível interpretar a resposta do modelo."
+
+
+def salvage_review(data) -> Review | None:
+    """Aproveita os achados válidos de uma resposta com algum achado malformado.
+
+    O gpt-oss às vezes escreve aspas duplas sem escape dentro do texto, como em
+    `cidr_blocks = ["0.0.0.0/0"]`, e o Bedrock corta o campo nesse ponto. Em vez de
+    perder a revisão inteira, só o achado quebrado é descartado, e o comentário avisa.
+    """
+    if not isinstance(data, dict) or not isinstance(data.get("findings"), list):
+        return None
+    try:
+        partial = Review.model_validate({**data, "findings": []})
+    except ValidationError:
+        return None
+    for item in data["findings"]:
+        try:
+            partial.findings.append(Finding.model_validate(item))
+        except ValidationError:
+            partial._discarded += 1
+    return partial
 
 
 ErrorKind = Literal["access", "not_found", "throttled", "connection", "other"]
@@ -314,6 +343,12 @@ def render(review: Review | str, model: str) -> str:
                 f.explanation,
                 "",
                 f"**Sugestão:** {f.suggestion}",
+                "",
+            ]
+        if review._discarded:
+            lines += [
+                f"⚠️ {review._discarded} achado(s) descartado(s) porque vieram incompletos na resposta "
+                "do modelo. Rode a revisão de novo para tentar recuperá-los.",
                 "",
             ]
     lines += [
