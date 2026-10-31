@@ -20,7 +20,7 @@
 ## Phase 4: User Story 3 - Lugar novo (P3)
 
 - [x] T007 [P] [US3] README da action incorporando o README do iac-ai-reviewer; README da raiz
-- [ ] T008 [US3] iac-ai-reviewer: README de aviso, fechar #3 e #4 com comentário, arquivar (PR #5 do iac-ai-reviewer aberto; merge pelo usuário)
+- [x] T008 [US3] iac-ai-reviewer: README de aviso, fechar #3 e #4 com comentário, arquivar
 - [x] T009 [P] [US3] Posts do blog (PR #10): links para `github-actions/iac-ai-review` e uso pela action
   na parte 3
 
@@ -28,5 +28,5 @@
 
 - [x] T010 `apply` da role `gh-github-actions` (usuário), secret `AWS_ROLE_ARN` e variável `MODEL_ID`;
   rodar o CI completo
-- [ ] T011 Merge do PR (usuário); tags `v1.0.0` e `v1`
+- [x] T011 Merge do PR (usuário); tags `v1.0.0` e `v1`
 - [ ] T012 Remover a role `gh-iac-ai-reviewer` do `aws-iam-baseline` (`plan` por mim, `apply` pelo usuário)
